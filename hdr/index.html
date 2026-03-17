@@ -2,8 +2,8 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HDR Vision Pro - MD3</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>HDR Vision Mobile</title>
     
     <!-- Material Design 3 核心库 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/beercss@3.5.1/dist/cdn/beer.min.css">
@@ -11,154 +11,158 @@
     
     <style>
         :root {
-            /* MD3 官方色调 */
             --primary: #0061a4;
-            --on-primary: #ffffff;
             --surface: #fdfcff;
-            --outline: #73777f;
+            --secondary-container: #e1e2ec;
         }
 
         body {
             background-color: var(--surface);
-            transition: background 0.4s ease;
+            padding-bottom: 80px; /* 为底部状态留空 */
         }
 
-        /* 核心查看器：全黑背景能最好地呈现 HDR 效果 */
+        /* 主查看器：移动端自适应高度 */
         .viewer-stage {
             width: 100%;
-            height: 65vh;
+            height: 50vh; /* 手机端占据一半高度 */
             background-color: #000;
-            border-radius: 32px; /* MD3 Extra Large Corner */
+            border-radius: 0 0 24px 24px; /* 顶部平齐，底部大圆角 */
             overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 24px;
-            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
-            position: relative;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        @media (min-width: 600px) {
+            .viewer-stage {
+                height: 65vh;
+                border-radius: 32px;
+                margin: 16px;
+                width: calc(100% - 32px);
+            }
         }
 
         #main-img {
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
-            transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* 缩略图卡片设计 */
+        /* 移动端横向滚动缩略图 */
+        .thumb-scroll-container {
+            display: flex;
+            overflow-x: auto;
+            gap: 12px;
+            padding: 16px 4px;
+            scrollbar-width: none; /* 隐藏滚动条 */
+        }
+        .thumb-scroll-container::-webkit-scrollbar { display: none; }
+
         .thumb-card {
+            flex: 0 0 140px; /* 固定宽度 */
             cursor: pointer;
-            border-radius: 24px;
-            padding: 12px;
-            transition: all 0.3s;
-            background: transparent;
+            border-radius: 20px;
+            background: var(--secondary-container);
+            padding: 8px;
+            transition: all 0.2s;
             border: 2px solid transparent;
         }
 
-        .thumb-card:hover {
-            background: rgba(0, 97, 164, 0.05);
-        }
-
         .thumb-card.active {
-            background: #d1e4ff; /* MD3 Primary Container */
             border-color: var(--primary);
+            background: #d1e4ff;
         }
 
         .thumb-card img {
             width: 100%;
-            height: 100px;
+            height: 80px;
             object-fit: cover;
-            border-radius: 16px;
-            margin-bottom: 8px;
+            border-radius: 12px;
         }
 
-        /* 状态指示器固定在右下角 */
-        .hdr-status-fab {
+        .thumb-card p {
+            margin: 4px 0 0 0;
+            font-size: 12px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        /* 状态指示器：在移动端更小巧 */
+        .status-chip {
             position: fixed;
-            bottom: 24px;
-            right: 24px;
+            bottom: 16px;
+            right: 16px;
             z-index: 100;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            font-size: 12px;
         }
 
-        /* 文字动画 */
-        .fade-text {
-            animation: fadeIn 0.5s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .header-title {
+            padding: 16px;
         }
     </style>
 </head>
 <body class="light">
 
-    <!-- 顶部导航栏 -->
-    <nav class="top l">
-        <button class="circle transparent"><i>filter_hdr</i></button>
-        <h5 class="max">HDR 画廊</h5>
-        <button class="circle transparent" onclick="toggleMode()">
-            <i id="mode-icon">dark_mode</i>
+    <!-- 顶部导航 -->
+    <nav class="top transparent">
+        <button class="circle transparent"><i>arrow_back</i></button>
+        <h6 class="max center-align">HDR 预览</h6>
+        <button class="circle transparent" onclick="ui('mode', (document.body.classList.contains('dark') ? 'light' : 'dark'))">
+            <i>dark_mode</i>
         </button>
     </nav>
 
-    <main class="responsive padding">
-        
-        <!-- HDR 主查看区 -->
+    <main>
+        <!-- 主展示区 -->
         <div class="viewer-stage">
-            <picture id="main-picture">
-                <!-- 修正后的文件名 -->
+            <picture>
                 <source id="main-source" srcset="blue_ocean_1024.avif" type="image/avif">
-                <img id="main-img" src="blue_ocean_1024.avif" alt="HDR Content">
+                <img id="main-img" src="blue_ocean_1024.avif">
             </picture>
         </div>
 
-        <!-- 动态信息区 -->
-        <div class="row margin fade-text">
-            <div class="max">
-                <h3 id="display-title" class="primary-text">蓝色海洋</h3>
-                <p id="display-desc" class="secondary">1024px 宽幅，AVIF 高动态范围格式。</p>
-            </div>
+        <!-- 标题区域 -->
+        <div class="header-title">
+            <h5 id="display-title" class="primary-text">蓝色海洋</h5>
+            <p id="display-desc" class="secondary">1024px AVIF HDR 格式</p>
         </div>
 
-        <!-- 缩略图选择网格 -->
-        <div class="grid">
-            <!-- 图片 1 -->
-            <div class="s6 m3">
-                <div class="thumb-card active" id="card1" onclick="changeImage('blue_ocean_1024.avif', '蓝色海洋', '1024px 宽幅，AVIF 高动态范围格式。', 'card1')">
-                    <img src="blue_ocean_1024.avif">
-                    <div class="center-align">
-                        <p class="bold">Blue Ocean</p>
-                    </div>
-                </div>
-            </div>
+        <div class="divider"></div>
 
-            <!-- 图片 2 -->
-            <div class="s6 m3">
-                <div class="thumb-card" id="card2" onclick="changeImage('white.avif', '纯净白光', '测试显示器极端峰值亮度的 HDR 样片。', 'card2')">
-                    <img src="white.avif">
-                    <div class="center-align">
-                        <p class="bold">White Glow</p>
-                    </div>
+        <!-- 缩略图选择（手机端横向滑动，电脑端自动排列） -->
+        <div class="padding">
+            <label class="margin">切换样片</label>
+            <div class="thumb-scroll-container">
+                <!-- 卡片 1 -->
+                <div class="thumb-card active" id="card1" onclick="updateView('blue_ocean_1024.avif', '蓝色海洋', '1024px AVIF HDR 格式', 'card1')">
+                    <img src="blue_ocean_1024.avif">
+                    <p>Blue Ocean</p>
                 </div>
+
+                <!-- 卡片 2 -->
+                <div class="thumb-card" id="card2" onclick="updateView('white.avif', '纯净白光', '测试极端亮度的 HDR 样片', 'card2')">
+                    <img src="white.avif">
+                    <p>White Glow</p>
+                </div>
+
+                <!-- 可以继续添加更多本地图片卡片 -->
             </div>
         </div>
     </main>
 
-    <!-- 底部状态 Chip (MD3 样式) -->
-    <div id="hdr-chip" class="hdr-status-fab chip fill error">
+    <!-- HDR 状态指示 -->
+    <div id="hdr-chip" class="status-chip chip fill error">
         <i id="hdr-icon">error</i>
-        <span id="hdr-text">检测中...</span>
+        <span id="hdr-text">SDR</span>
     </div>
 
     <script>
-        // 图片切换逻辑
-        function changeImage(url, title, desc, cardId) {
+        function updateView(url, title, desc, cardId) {
             const img = document.getElementById('main-img');
             const source = document.getElementById('main-source');
             
-            // 切换动画效果
             img.style.opacity = '0';
             
             setTimeout(() => {
@@ -168,14 +172,13 @@
                 document.getElementById('display-desc').innerText = desc;
                 img.style.opacity = '1';
                 
-                // 更新缩略图状态
+                // 更新选中状态
                 document.querySelectorAll('.thumb-card').forEach(c => c.classList.remove('active'));
                 document.getElementById(cardId).classList.add('active');
-            }, 300);
+            }, 250);
         }
 
-        // HDR 环境检测
-        function detectHDR() {
+        function checkHDR() {
             const chip = document.getElementById('hdr-chip');
             const icon = document.getElementById('hdr-icon');
             const text = document.getElementById('hdr-text');
@@ -183,27 +186,15 @@
             if (window.matchMedia('(dynamic-range: high)').matches) {
                 chip.classList.replace('error', 'primary');
                 icon.innerText = 'high_quality';
-                text.innerText = 'HDR 模式已激活';
+                text.innerText = 'HDR 开启';
             } else {
                 chip.classList.replace('primary', 'error');
-                icon.innerText = 'sd_storage';
+                icon.innerText = 'sd';
                 text.innerText = 'SDR 模式';
             }
         }
 
-        // 切换深色/浅色模式
-        function toggleMode() {
-            const isDark = document.body.classList.contains('dark');
-            if (isDark) {
-                ui('mode', 'light');
-                document.getElementById('mode-icon').innerText = 'dark_mode';
-            } else {
-                ui('mode', 'dark');
-                document.getElementById('mode-icon').innerText = 'light_mode';
-            }
-        }
-
-        window.onload = detectHDR;
+        window.onload = checkHDR;
     </script>
 </body>
 </html>
