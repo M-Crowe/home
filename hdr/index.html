@@ -3,187 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HDR Vision - Material Design 3</title>
+    <title>HDR Viewer - 蓝色海洋</title>
     
-    <!-- 加载 MD3 样式库 (Beer CSS) -->
+    <!-- Material Design 3 样式库 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/beercss@3.5.1/dist/cdn/beer.min.css">
     <script type="module" src="https://cdn.jsdelivr.net/npm/beercss@3.5.1/dist/cdn/beer.min.js"></script>
     
     <style>
         :root {
-            /* 使用 OKLCH 颜色空间以在支持 HDR 的屏幕上显示更鲜艳的 MD3 颜色 */
-            --primary-hdr: oklch(0.6 0.18 260);
-            --surface-variant: oklch(0.9 0.02 260);
+            /* MD3 核心色调 */
+            --primary: #0061a4;
+            --surface: #fdfcff;
         }
 
         body {
             background-color: var(--surface);
-            transition: background 0.3s;
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
         }
 
-        /* 针对支持高动态范围的显示器进行增强 */
+        /* HDR 增强显示效果 */
         @media (dynamic-range: high) {
-            .hdr-glow {
-                box-shadow: 0 0 20px oklch(0.7 0.2 260 / 0.3);
-            }
-            .hdr-badge {
-                background-color: #ffd700 !important;
-                color: #000 !important;
+            .hdr-container {
+                /* 在 HDR 屏幕上增加一点光晕感 */
+                box-shadow: 0 0 30px oklch(0.7 0.15 250 / 0.2);
             }
         }
 
-        .main-viewer {
-            border-radius: 28px;
-            overflow: hidden;
-            background: #000;
-            min-height: 400px;
+        .viewer-container {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            margin-bottom: 24px;
+            padding: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
-        .main-viewer img {
-            max-width: 100%;
+        /* 重点：HDR 图片展示区域 */
+        .hdr-viewer {
+            width: 100%;
+            background-color: #000;
+            border-radius: 28px; /* MD3 特色大圆角 */
+            overflow: hidden;
+            line-height: 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .hdr-viewer img {
+            width: 100%;
+            height: auto;
             max-height: 80vh;
             object-fit: contain;
         }
 
-        .image-card {
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            border-radius: 16px;
+        .info-card {
+            margin-top: 24px;
+            padding: 24px;
+            width: 100%;
+            border-radius: 20px;
+            background: #f0f4f9;
         }
 
-        .image-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-        }
-
-        .status-chip {
+        .status-badge {
             position: fixed;
             bottom: 24px;
             right: 24px;
-            z-index: 100;
+            z-index: 10;
         }
     </style>
 </head>
-<body class="light"> <!-- 默认明亮模式 -->
+<body class="light">
 
-    <!-- 顶部导航栏 -->
+    <!-- 导航栏 -->
     <nav class="top l">
-        <button class="circle transparent">
-            <i>menu</i>
-        </button>
-        <h5 class="max">HDR 画廊</h5>
-        <button class="circle transparent" onclick="ui('mode', 'dark')">
-            <i id="mode-icon">dark_mode</i>
+        <button class="circle transparent"><i>photo_library</i></button>
+        <h5 class="max">HDR 图像展示</h5>
+        <button class="circle transparent" onclick="toggleTheme()">
+            <i id="theme-icon">dark_mode</i>
         </button>
     </nav>
 
-    <main class="responsive padding">
+    <main class="viewer-container">
         
-        <!-- 主图展示区 -->
-        <div class="main-viewer hdr-glow">
-            <picture id="main-picture">
-                <!-- 这里放置主图 -->
-                <source id="source-avif" srcset="https://gainmap-creator.monogrid.com/static/media/test_hdr.a8f29456.avif" type="image/avif">
-                <img id="display-img" src="https://gainmap-creator.monogrid.com/static/media/test_hdr.a8f29456.avif" alt="HDR Content">
+        <!-- HDR 主图 -->
+        <div class="hdr-viewer hdr-container">
+            <picture>
+                <!-- 引用你的本地文件 -->
+                <source srcset="blue_ocean_1024.avif.avif" type="image/avif">
+                <img src="blue_ocean_1024.avif.avif" alt="Blue Ocean HDR">
             </picture>
         </div>
 
-        <div class="space"></div>
-
-        <!-- 标题与描述 -->
-        <div class="row">
-            <div class="max">
-                <h3>沉浸式 HDR 体验</h3>
-                <p>探索由 MD3 设计驱动的下一代影像视觉。此页面已优化 AVIF 与 Ultra HDR 格式支持。</p>
+        <!-- 文字说明内容 -->
+        <div class="info-card">
+            <div class="row">
+                <div class="max">
+                    <h4 class="primary-text">蓝色海洋 (1024)</h4>
+                    <p>文件名: <code>blue_ocean_1024.avif.avif</code></p>
+                    <p class="secondary">
+                        这张图片以 AVIF 格式编码，包含高动态范围 (HDR) 信息。
+                        在支持 HDR 的显示器上，天空和水面的高光将呈现出超越 SDR 范围的亮度。
+                    </p>
+                </div>
             </div>
-        </div>
-
-        <div class="space"></div>
-
-        <!-- 缩略图网格 -->
-        <div class="grid">
-            <!-- 示例图片 1 -->
-            <div class="s12 m4 l3">
-                <article class="image-card no-padding" onclick="changeImage('https://gainmap-creator.monogrid.com/static/media/test_hdr.a8f29456.avif')">
-                    <img src="https://gainmap-creator.monogrid.com/static/media/test_hdr.a8f29456.avif" class="responsive">
-                    <div class="padding">
-                        <h6>光影建筑</h6>
-                        <p class="secondary">AVIF HDR 格式</p>
-                    </div>
-                </article>
-            </div>
-            <!-- 示例图片 2 -->
-            <div class="s12 m4 l3">
-                <article class="image-card no-padding" onclick="changeImage('https://raw.githubusercontent.com/google/libultrahdr/main/tests/data/test_image.jpg')">
-                    <img src="https://raw.githubusercontent.com/google/libultrahdr/main/tests/data/test_image.jpg" class="responsive">
-                    <div class="padding">
-                        <h6>日落山脉</h6>
-                        <p class="secondary">Ultra HDR (Gain Map)</p>
-                    </div>
-                </article>
+            
+            <div class="space"></div>
+            
+            <div class="row scroll">
+                <div class="chip outline"><i>settings_brightness</i> 10-bit Color</div>
+                <div class="chip outline"><i>high_quality</i> AVIF HDR</div>
+                <div class="chip outline"><i>Width</i> 1024px</div>
             </div>
         </div>
     </main>
 
-    <!-- HDR 状态指示器 -->
-    <div class="status-chip chip hdr-badge fill" id="hdr-status">
-        <i id="status-icon">error</i>
-        <span id="status-text">正在检测 HDR...</span>
+    <!-- HDR 状态检测提示 (MD3 Badge) -->
+    <div id="hdr-chip" class="status-badge chip fill error">
+        <i id="hdr-icon">error</i>
+        <span id="hdr-text">正在检测显示器 HDR 状态...</span>
     </div>
 
     <script>
-        // 检测 HDR 支持情况
-        async function checkHDR() {
-            const statusText = document.getElementById('status-text');
-            const statusIcon = document.getElementById('status-icon');
-            const hdrBadge = document.getElementById('hdr-status');
+        // 检测 HDR 支持
+        function detectHDR() {
+            const chip = document.getElementById('hdr-chip');
+            const icon = document.getElementById('hdr-icon');
+            const text = document.getElementById('hdr-text');
 
-            // 1. 媒体查询检测硬件/系统是否开启 HDR
-            const hasHDR = window.matchMedia('(dynamic-range: high)').matches;
-
-            if (hasHDR) {
-                statusText.innerText = "HDR 已激活";
-                statusIcon.innerText = "high_quality";
-                hdrBadge.classList.add('primary');
+            if (window.matchMedia('(dynamic-range: high)').matches) {
+                chip.classList.replace('error', 'primary');
+                icon.innerText = 'check_circle';
+                text.innerText = 'HDR 显示已激活';
             } else {
-                statusText.innerText = "SDR 模式 (显示器不支持)";
-                statusIcon.innerText = "sd";
-                hdrBadge.classList.remove('primary');
+                chip.classList.replace('primary', 'error');
+                icon.innerText = 'info';
+                text.innerText = '当前处于 SDR 模式';
             }
         }
 
-        // 切换图片功能
-        function changeImage(url) {
-            const displayImg = document.getElementById('display-img');
-            const sourceAvif = document.getElementById('source-avif');
-            
-            // 简单演示：更新图片源
-            displayImg.src = url;
-            if (url.endsWith('.avif')) {
-                sourceAvif.srcset = url;
-            } else {
-                sourceAvif.srcset = ""; // 清除 AVIF 源以回退到默认 img
-            }
-        }
-
-        // 模式切换美化
+        // 主题切换
         function toggleTheme() {
-            const current = document.body.classList.contains('dark');
-            if (current) {
+            const isDark = document.body.classList.contains('dark');
+            if (isDark) {
                 ui('mode', 'light');
-                document.getElementById('mode-icon').innerText = 'dark_mode';
+                document.getElementById('theme-icon').innerText = 'dark_mode';
             } else {
                 ui('mode', 'dark');
-                document.getElementById('mode-icon').innerText = 'light_mode';
+                document.getElementById('theme-icon').innerText = 'light_mode';
             }
         }
 
-        // 初始化
-        window.onload = checkHDR;
+        window.onload = detectHDR;
     </script>
 </body>
 </html>
