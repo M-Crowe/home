@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>HDR 画廊 - MD3 双端适配</title>
+    <title>HDR 在线画廊 - MD3</title>
     
-    <!-- Material Design 3 核心库 (Beer CSS) -->
+    <!-- Material Design 3 核心库 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/beercss@3.5.1/dist/cdn/beer.min.css">
     <script type="module" src="https://cdn.jsdelivr.net/npm/beercss@3.5.1/dist/cdn/beer.min.js"></script>
     
@@ -22,223 +22,182 @@
             height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow: hidden; /* 防止整个页面滚动，使用局部滚动 */
-        }
-
-        /* 顶部导航 */
-        .top-nav {
-            flex-shrink: 0;
-            padding: 8px 16px;
-        }
-
-        /* 核心响应式容器 */
-        .gallery-container {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-        }
-
-        /* ================= 默认/手机端布局 ================= */
-        .viewer-stage {
-            background-color: #000;
-            width: 100%;
-            height: 45vh; /* 手机端占据上半部分 */
-            border-radius: 0 0 28px 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .top-nav { flex-shrink: 0; padding: 8px 16px; }
+        .gallery-container {
+            flex-grow: 1; display: flex; flex-direction: column; overflow-y: auto;
+        }
+
+        /* 手机端布局 */
+        .viewer-stage {
+            background-color: #000; width: 100%; height: 45vh;
+            border-radius: 0 0 28px 28px;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.15);
             flex-shrink: 0;
         }
 
-        .details-pane {
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
+        #main-img {
+            max-width: 100%; max-height: 100%; object-fit: contain;
+            transition: opacity 0.3s ease;
         }
 
+        .details-pane { padding: 16px; display: flex; flex-direction: column; }
+        
         .thumb-list {
-            display: flex;
-            overflow-x: auto;
-            gap: 12px;
-            padding: 8px 0;
+            display: flex; overflow-x: auto; gap: 12px; padding: 8px 0;
             scrollbar-width: none;
         }
         .thumb-list::-webkit-scrollbar { display: none; }
 
         .thumb-card {
-            flex: 0 0 130px; /* 手机端固定宽度，横向滚动 */
+            flex: 0 0 130px; cursor: pointer; border-radius: 20px;
+            background: var(--surface-variant); padding: 8px;
+            transition: all 0.2s; border: 2px solid transparent;
         }
 
-        /* ================= 电脑/宽屏端布局 ================= */
+        .thumb-card.active { border-color: var(--primary); background: #d1e4ff; }
+        .thumb-card img { width: 100%; height: 90px; object-fit: cover; border-radius: 12px; margin-bottom: 8px; }
+        .thumb-card p { margin: 0; font-size: 13px; text-align: center; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+
+        /* 电脑宽屏布局 */
         @media (min-width: 900px) {
-            body { overflow: hidden; } /* 锁定整体滚动 */
-            
-            .gallery-container {
-                flex-direction: row; /* 改为左右排列 */
-                padding: 0 24px 24px 24px;
-                gap: 32px;
-                overflow: hidden;
-            }
-
-            /* 左侧主图区域 */
-            .viewer-stage {
-                flex: 2; /* 占据2/3宽度 */
-                height: 100%; 
-                border-radius: 32px; /* 电脑端全圆角 */
-            }
-
-            /* 右侧信息与缩略图区域 */
-            .details-pane {
-                flex: 1; /* 占据1/3宽度 */
-                max-width: 400px;
-                padding: 0;
-                overflow-y: auto; /* 右侧内容多可独立滚动 */
-            }
-
-            .thumb-list {
-                display: grid; /* 电脑端改为网格排列 */
-                grid-template-columns: repeat(2, 1fr);
-                overflow: visible;
-                padding: 0;
-            }
-
-            .thumb-card {
-                flex: auto;
-                width: 100%;
-            }
+            body { overflow: hidden; }
+            .gallery-container { flex-direction: row; padding: 0 24px 24px 24px; gap: 32px; overflow: hidden; }
+            .viewer-stage { flex: 2; height: 100%; border-radius: 32px; }
+            .details-pane { flex: 1; max-width: 400px; padding: 0; overflow-y: auto; }
+            .thumb-list { display: grid; grid-template-columns: repeat(2, 1fr); overflow: visible; padding: 0; }
+            .thumb-card { flex: auto; width: 100%; }
         }
 
-        /* ================= 通用组件样式 ================= */
-        #main-img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-            transition: opacity 0.3s ease;
-        }
-
-        .thumb-card {
-            cursor: pointer;
-            border-radius: 20px;
-            background: var(--surface-variant);
-            padding: 8px;
-            transition: all 0.2s;
-            border: 2px solid transparent;
-        }
-
-        .thumb-card:hover { filter: brightness(0.95); }
-        .thumb-card.active {
-            border-color: var(--primary);
-            background: #d1e4ff;
-        }
-
-        .thumb-card img {
-            width: 100%;
-            height: 90px;
-            object-fit: cover;
-            border-radius: 12px;
-            margin-bottom: 8px;
-        }
-
-        .thumb-card p {
-            margin: 0;
-            font-size: 13px;
-            text-align: center;
-            font-weight: bold;
-        }
-
-        /* 悬浮状态指示器 */
-        .status-fab {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            z-index: 100;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
+        .status-fab { position: fixed; bottom: 24px; right: 24px; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
     </style>
 </head>
 <body class="light">
 
-    <!-- 顶部导航 -->
     <nav class="top-nav transparent l">
         <button class="circle transparent"><i>panorama</i></button>
-        <h5 class="max">HDR 影像工作站</h5>
+        <h5 class="max">Web HDR 影像展</h5>
         <button class="circle transparent" onclick="ui('mode', (document.body.classList.contains('dark') ? 'light' : 'dark'))">
             <i>dark_mode</i>
         </button>
     </nav>
 
-    <!-- 核心响应式容器 -->
     <main class="gallery-container">
-        
-        <!-- 左侧/上方：主图展示区 -->
+        <!-- 左侧大图展示 -->
         <div class="viewer-stage">
             <picture>
-                <source id="main-source" srcset="blue_ocean_1024.avif" type="image/avif">
-                <img id="main-img" src="blue_ocean_1024.avif" alt="HDR Content">
+                <!-- 默认空白，将由 JS 自动填充第一张图 -->
+                <source id="main-source" type="image/avif">
+                <img id="main-img" alt="HDR Picture">
             </picture>
         </div>
 
-        <!-- 右侧/下方：信息与控制区 -->
+        <!-- 右侧信息与列表 -->
         <div class="details-pane">
-            
-            <!-- 图片信息 -->
             <div>
-                <h3 id="display-title" class="primary-text">蓝色海洋</h3>
-                <p id="display-desc" class="secondary">1024px AVIF HDR 高动态范围格式，完美保留高光细节。</p>
+                <h3 id="display-title" class="primary-text">加载中...</h3>
+                <p id="display-desc" class="secondary">正在初始化图库数据</p>
             </div>
             
             <div class="divider margin-top margin-bottom"></div>
-
-            <h6 class="margin-bottom">本地样片</h6>
             
-            <!-- 缩略图列表 -->
-            <div class="thumb-list">
-                <!-- 图 1 -->
-                <div class="thumb-card active" id="card1" onclick="updateView('blue_ocean_1024.avif', '蓝色海洋', '1024px AVIF HDR 高动态范围格式，完美保留高光细节。', 'card1')">
-                    <img src="blue_ocean_1024.avif">
-                    <p>Blue Ocean</p>
-                </div>
-
-                <!-- 图 2 -->
-                <div class="thumb-card" id="card2" onclick="updateView('white.avif', '纯净白光', '极端高光测试样片。用于检测显示器激发最高尼特(nits)亮度的能力。', 'card2')">
-                    <img src="white.avif">
-                    <p>White Glow</p>
-                </div>
+            <div class="row margin-bottom">
+                <h6 class="max">画廊列表</h6>
+                <span id="image-count" class="chip">0 张</span>
             </div>
+            
+            <!-- 这里原本手写的卡片被清空了，将由 JS 自动生成 -->
+            <div class="thumb-list" id="gallery-grid"></div>
         </div>
     </main>
 
-    <!-- HDR 状态角标 -->
     <div id="hdr-chip" class="status-fab chip fill error">
         <i id="hdr-icon">error</i>
         <span id="hdr-text">SDR 模式</span>
     </div>
 
     <script>
-        // 图片切换
-        function updateView(url, title, desc, cardId) {
-            const img = document.getElementById('main-img');
-            const source = document.getElementById('main-source');
+        // ==========================================
+        // 🌟 核心配置区：在这里添加或修改你的图片！🌟
+        // ==========================================
+        const galleryData =[
+            {
+                file: 'blue_ocean_1024.avif',
+                title: '蓝色海洋',
+                desc: '1024px AVIF HDR 格式。若屏幕支持 HDR，高光区域将超越常规白点亮度。'
+            },
+            {
+                file: 'white.avif',
+                title: '纯净白光',
+                desc: '极端高光测试样片，用于检测显示器激发最高峰值亮度 (Nits) 的能力。'
+            },
+            {
+                file: 'hdr1.avif',
+                title: 'HDR 风光实测',
+                desc: '新增的 AVIF 高动态范围测试样片，展示自然光影过渡。'
+            }
+            // 💡 以后想加新图片，只需要像上面一样加一组 { file: '文件名', title: '标题', desc: '描述' } 就可以了！
+        ];
+        // ==========================================
+
+        // 初始化画廊
+        function initGallery() {
+            const grid = document.getElementById('gallery-grid');
+            document.getElementById('image-count').innerText = `${galleryData.length} 张`;
             
+            grid.innerHTML = ''; // 清空容器
+
+            // 循环遍历配置数据，自动生成 HTML 卡片
+            galleryData.forEach((item, index) => {
+                // 第一张图默认选中
+                const isActive = index === 0 ? 'active' : '';
+                
+                const cardHtml = `
+                    <div class="thumb-card ${isActive}" id="card-${index}" onclick="changeImage(${index})">
+                        <img src="${item.file}" alt="${item.title}">
+                        <p>${item.title}</p>
+                    </div>
+                `;
+                grid.innerHTML += cardHtml;
+            });
+
+            // 初始化显示第一张大图 (无需动画)
+            if (galleryData.length > 0) {
+                updateViewData(0);
+            }
+        }
+
+        // 切换图片功能
+        function changeImage(index) {
+            const img = document.getElementById('main-img');
+            
+            // 1. 大图淡出
             img.style.opacity = '0';
             
+            // 2. 延迟 250ms 后替换图片源，并淡入
             setTimeout(() => {
-                source.srcset = url;
-                img.src = url;
-                document.getElementById('display-title').innerText = title;
-                document.getElementById('display-desc').innerText = desc;
+                updateViewData(index);
                 img.style.opacity = '1';
                 
-                // 更新选中状态
+                // 3. 更新缩略图的“蓝色高亮”边框状态
                 document.querySelectorAll('.thumb-card').forEach(c => c.classList.remove('active'));
-                document.getElementById(cardId).classList.add('active');
+                document.getElementById(`card-${index}`).classList.add('active');
             }, 250);
         }
 
-        // HDR 检测
+        // 仅更新文本和图片路径的核心逻辑
+        function updateViewData(index) {
+            const data = galleryData[index];
+            document.getElementById('main-source').srcset = data.file;
+            document.getElementById('main-img').src = data.file;
+            document.getElementById('display-title').innerText = data.title;
+            document.getElementById('display-desc').innerText = data.desc;
+        }
+
+        // 检查屏幕 HDR 状态
         function checkHDR() {
             const chip = document.getElementById('hdr-chip');
             const icon = document.getElementById('hdr-icon');
@@ -255,7 +214,11 @@
             }
         }
 
-        window.onload = checkHDR;
+        // 当网页加载完毕时，按顺序执行这两个函数
+        window.onload = () => {
+            initGallery();
+            checkHDR();
+        };
     </script>
 </body>
 </html>
